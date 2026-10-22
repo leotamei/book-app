@@ -1,0 +1,20 @@
+body {
+  background-color: #f4f6f8;
+  font-family: Arial, sans-serif;
+}
+
+.card {
+  border-radius: 8px;
+}
+
+.book-cover {
+  height: 200px;
+  object-fit: contain;
+  background-color: #e9ecef;
+  padding: 10px;
+}
+
+/* Helper class to hide/show SPA views */
+.d-none {
+  display: none !important;
+}
