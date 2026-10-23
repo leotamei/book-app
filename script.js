@@ -1,7 +1,9 @@
 // App State
 let books = [];
 let favorites = [];
-let reviews = [];
+let reviews = [
+  { title: "The Hobbit", name: "Sarah", rating: "5", body: "Great fantasy story!" }
+];
 
 // DOM Elements
 const searchPage = document.getElementById('search-page');
@@ -51,7 +53,7 @@ function showPage(pageName) {
   } else if (pageName === 'reviews') {
     reviewsPage.classList.remove('d-none');
     navReviewsBtn.classList.add('active');
-    fetchReviews();
+    displayReviews();
   } else if (pageName === 'about') {
     aboutPage.classList.remove('d-none');
     navAboutBtn.classList.add('active');
@@ -89,7 +91,7 @@ reviewForm.addEventListener('submit', function(event) {
 contactForm.addEventListener('submit', function(event) {
   event.preventDefault();
   const name = document.getElementById('contact-name').value;
-  alertMessage.innerHTML = `<div class="alert alert-success">Thank you ${name}! Your message has been sent.</div>`;
+  alertMessage.innerHTML = `<div class="alert alert-success">Thank you ${name}! Your contact message has been sent.</div>`;
   contactForm.reset();
 });
 
@@ -104,7 +106,7 @@ sortSelect.addEventListener('change', function(event) {
   displayBooks(books);
 });
 
-// GET Request for Books (Open Library API)
+// GET Request
 async function fetchBooks(query) {
   loadingText.classList.remove('d-none');
   alertMessage.innerHTML = '';
@@ -131,22 +133,10 @@ async function fetchBooks(query) {
   }
 }
 
-// GET Request for Reviews (Local json-server)
-async function fetchReviews() {
-  try {
-    const response = await fetch('http://localhost:3000/reviews');
-    if (!response.ok) throw new Error('Failed to load reviews.');
-    reviews = await response.json();
-    displayReviews();
-  } catch (error) {
-    console.log('Error loading reviews:', error.message);
-  }
-}
-
-// POST Request for Reviews (Local json-server)
+// POST Request
 async function sendPostRequest(reviewData) {
   try {
-    const response = await fetch('http://localhost:3000/reviews', {
+    const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(reviewData)
@@ -154,11 +144,10 @@ async function sendPostRequest(reviewData) {
 
     if (!response.ok) throw new Error('Could not submit review to server.');
 
-    const savedReview = await response.json();
-    reviews.unshift(savedReview);
+    reviews.unshift(reviewData);
     displayReviews();
     reviewForm.reset();
-    alertMessage.innerHTML = `<div class="alert alert-success">Review saved to db.json!</div>`;
+    alertMessage.innerHTML = `<div class="alert alert-success">Review submitted successfully! (Status 201)</div>`;
 
   } catch (error) {
     alertMessage.innerHTML = `<div class="alert alert-danger">Error submitting review: ${error.message}</div>`;
@@ -228,11 +217,6 @@ function displayFavorites() {
 function displayReviews() {
   reviewsList.innerHTML = '';
 
-  if (reviews.length === 0) {
-    reviewsList.innerHTML = '<p class="text-muted">No reviews yet.</p>';
-    return;
-  }
-
   reviews.forEach(function(r) {
     const col = document.createElement('div');
     col.className = 'col';
@@ -252,4 +236,3 @@ function displayReviews() {
 
 // Initial Load
 fetchBooks('javascript');
-fetchReviews();
