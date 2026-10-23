@@ -1,0 +1,21 @@
+{
+  "name": "book-app",
+  "version": "1.0.0",
+  "description": "Welcome to my Module 2 Software Development project! **Book Explorer** is a Single Page Application (SPA) built using HTML5, CSS3, Bootstrap 5, and JavaScript.",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leotamei/book-app.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/leotamei/book-app/issues"
+  },
+  "homepage": "https://github.com/leotamei/book-app#readme"
+}

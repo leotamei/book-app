@@ -1,18 +1,16 @@
-// ==========================================
-// GLOBAL VARIABLES (Simple State Management)
-// ==========================================
+// App State
 let books = [];
 let favorites = [];
 let reviews = [
   { title: "The Hobbit", name: "Sarah", rating: "5", body: "Great fantasy story!" }
 ];
 
-// ==========================================
-// DOM ELEMENTS
-// ==========================================
+// DOM Elements
 const searchPage = document.getElementById('search-page');
 const favoritesPage = document.getElementById('favorites-page');
 const reviewsPage = document.getElementById('reviews-page');
+const aboutPage = document.getElementById('about-page');
+const contactPage = document.getElementById('contact-page');
 
 const searchForm = document.getElementById('search-form');
 const searchInput = document.getElementById('search-input');
@@ -24,25 +22,27 @@ const sortSelect = document.getElementById('sort-select');
 const navSearchBtn = document.getElementById('nav-search-btn');
 const navFavsBtn = document.getElementById('nav-favs-btn');
 const navReviewsBtn = document.getElementById('nav-reviews-btn');
+const navAboutBtn = document.getElementById('nav-about-btn');
+const navContactBtn = document.getElementById('nav-contact-btn');
 
 const reviewForm = document.getElementById('review-form');
 const reviewsList = document.getElementById('reviews-list');
+const contactForm = document.getElementById('contact-form');
 
-// ==========================================
-// SPA NAVIGATION FUNCTION
-// ==========================================
+// SPA Navigation
 function showPage(pageName) {
-  // Hide all pages
   searchPage.classList.add('d-none');
   favoritesPage.classList.add('d-none');
   reviewsPage.classList.add('d-none');
+  aboutPage.classList.add('d-none');
+  contactPage.classList.add('d-none');
 
-  // Remove active styling from buttons
   navSearchBtn.classList.remove('active');
   navFavsBtn.classList.remove('active');
   navReviewsBtn.classList.remove('active');
+  navAboutBtn.classList.remove('active');
+  navContactBtn.classList.remove('active');
 
-  // Show selected page
   if (pageName === 'search') {
     searchPage.classList.remove('d-none');
     navSearchBtn.classList.add('active');
@@ -54,85 +54,69 @@ function showPage(pageName) {
     reviewsPage.classList.remove('d-none');
     navReviewsBtn.classList.add('active');
     displayReviews();
+  } else if (pageName === 'about') {
+    aboutPage.classList.remove('d-none');
+    navAboutBtn.classList.add('active');
+  } else if (pageName === 'contact') {
+    contactPage.classList.remove('d-none');
+    navContactBtn.classList.add('active');
   }
 }
 
-// ==========================================
-// EVENT LISTENER 1: 'click' (Tabs & Buttons)
-// ==========================================
-navSearchBtn.addEventListener('click', function() {
-  showPage('search');
-});
+// Event Listeners: Navigation
+navSearchBtn.addEventListener('click', () => showPage('search'));
+navFavsBtn.addEventListener('click', () => showPage('favorites'));
+navReviewsBtn.addEventListener('click', () => showPage('reviews'));
+navAboutBtn.addEventListener('click', () => showPage('about'));
+navContactBtn.addEventListener('click', () => showPage('contact'));
 
-navFavsBtn.addEventListener('click', function() {
-  showPage('favorites');
-});
-
-navReviewsBtn.addEventListener('click', function() {
-  showPage('reviews');
-});
-
-// ==========================================
-// EVENT LISTENER 2: 'submit' (Search & POST)
-// ==========================================
-
-// Search Form Submit (GET Request)
+// Event Listeners: Forms
 searchForm.addEventListener('submit', function(event) {
-  event.preventDefault(); // Stop page from refreshing
+  event.preventDefault();
   const query = searchInput.value.trim();
-  
-  if (query !== '') {
-    fetchBooks(query);
-  }
+  if (query !== '') fetchBooks(query);
 });
 
-// Review Form Submit (POST Request)
 reviewForm.addEventListener('submit', function(event) {
-  event.preventDefault(); // Stop page from refreshing
-  
+  event.preventDefault();
   const newReview = {
     title: document.getElementById('review-title').value,
     name: document.getElementById('review-name').value,
     rating: document.getElementById('review-rating').value,
     body: document.getElementById('review-body').value
   };
-
   sendPostRequest(newReview);
 });
 
-// ==========================================
-// EVENT LISTENER 3: 'change' (Sorting Dropdown)
-// ==========================================
+contactForm.addEventListener('submit', function(event) {
+  event.preventDefault();
+  const name = document.getElementById('contact-name').value;
+  alertMessage.innerHTML = `<div class="alert alert-success">Thank you ${name}! Your contact message has been sent.</div>`;
+  contactForm.reset();
+});
+
+// Event Listener: Sort Dropdown
 sortSelect.addEventListener('change', function(event) {
   const selectedValue = event.target.value;
-
   if (selectedValue === 'newest') {
-    books.sort((a, b) => b.first_publish_year - a.first_publish_year);
+    books.sort((a, b) => (b.first_publish_year || 0) - (a.first_publish_year || 0));
   } else if (selectedValue === 'oldest') {
-    books.sort((a, b) => a.first_publish_year - b.first_publish_year);
+    books.sort((a, b) => (a.first_publish_year || 9999) - (b.first_publish_year || 9999));
   }
-
   displayBooks(books);
 });
 
-// ==========================================
-// API FUNCTION 1: GET Request with Error Handling
-// ==========================================
+// GET Request
 async function fetchBooks(query) {
   loadingText.classList.remove('d-none');
   alertMessage.innerHTML = '';
   bookList.innerHTML = '';
 
   try {
-    const response = await fetch(`https://openlibrary.org/search.json?q=${query}&limit=12`);
-    
-    // Check if network request failed
-    if (!response.ok) {
-      throw new Error('Failed to reach the API server.');
-    }
+    const response = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=12`);
+    if (!response.ok) throw new Error('Failed to reach the API server.');
 
     const data = await response.json();
-    
     if (data.docs.length === 0) {
       alertMessage.innerHTML = `<div class="alert alert-warning">No books found for "${query}".</div>`;
       loadingText.classList.add('d-none');
@@ -143,49 +127,34 @@ async function fetchBooks(query) {
     displayBooks(books);
 
   } catch (error) {
-    // Error Handling display banner
     alertMessage.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
   } finally {
     loadingText.classList.add('d-none');
   }
 }
 
-// ==========================================
-// API FUNCTION 2: POST Request with Error Handling
-// ==========================================
+// POST Request
 async function sendPostRequest(reviewData) {
   try {
     const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(reviewData)
     });
 
-    if (!response.ok) {
-      throw new Error('Could not submit review to server.');
-    }
+    if (!response.ok) throw new Error('Could not submit review to server.');
 
-    const data = await response.json();
-    
-    // Add review to our local array and clear form
     reviews.unshift(reviewData);
     displayReviews();
     reviewForm.reset();
-
-    alertMessage.innerHTML = `<div class="alert alert-success">Review submitted successfully! (Server status 201)</div>`;
+    alertMessage.innerHTML = `<div class="alert alert-success">Review submitted successfully! (Status 201)</div>`;
 
   } catch (error) {
     alertMessage.innerHTML = `<div class="alert alert-danger">Error submitting review: ${error.message}</div>`;
   }
 }
 
-// ==========================================
-// DISPLAY HELPER FUNCTIONS
-// ==========================================
-
-// Display Books in Search Page
+// Display Functions
 function displayBooks(bookArray) {
   bookList.innerHTML = '';
 
@@ -214,10 +183,8 @@ function displayBooks(bookArray) {
   });
 }
 
-// Save Favorite Function
 function saveToFavorites(bookKey) {
   const selectedBook = books.find(b => b.key === bookKey);
-  
   if (selectedBook && !favorites.includes(selectedBook)) {
     favorites.push(selectedBook);
     document.getElementById('fav-count').textContent = favorites.length;
@@ -225,7 +192,6 @@ function saveToFavorites(bookKey) {
   }
 }
 
-// Display Favorites Page
 function displayFavorites() {
   const favoritesList = document.getElementById('favorites-list');
   favoritesList.innerHTML = '';
@@ -235,11 +201,7 @@ function displayFavorites() {
     return;
   }
 
-  displayBooksInContainer(favorites, favoritesList);
-}
-
-function displayBooksInContainer(array, container) {
-  array.forEach(function(book) {
+  favorites.forEach(function(book) {
     const col = document.createElement('div');
     col.className = 'col';
     col.innerHTML = `
@@ -248,11 +210,10 @@ function displayBooksInContainer(array, container) {
         <p class="small text-muted mb-0">Year: ${book.first_publish_year || 'N/A'}</p>
       </div>
     `;
-    container.appendChild(col);
+    favoritesList.appendChild(col);
   });
 }
 
-// Display Community Reviews
 function displayReviews() {
   reviewsList.innerHTML = '';
 
@@ -273,5 +234,5 @@ function displayReviews() {
   });
 }
 
-// Initialize page on load
+// Initial Load
 fetchBooks('javascript');

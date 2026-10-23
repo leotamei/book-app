@@ -1,20 +1,47 @@
 body {
-  background-color: #f4f6f8;
-  font-family: Arial, sans-serif;
+  background-color: #f8f9fa;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #212529;
+}
+
+.navbar {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.hero-section {
+  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
 }
 
 .card {
-  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08) !important;
 }
 
 .book-cover {
-  height: 200px;
+  height: 220px;
   object-fit: contain;
-  background-color: #e9ecef;
-  padding: 10px;
+  background-color: #f1f3f5;
+  padding: 12px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
 }
 
-/* Helper class to hide/show SPA views */
+.form-control, .form-select {
+  border-radius: 6px;
+}
+
+.form-control:focus, .form-select:focus {
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+}
+
 .d-none {
   display: none !important;
 }
